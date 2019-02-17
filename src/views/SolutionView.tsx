@@ -5,6 +5,8 @@ import { EnteringView } from '../components/PageView';
 import { Grid } from '../components/Grid';
 import styled, { keyframes } from 'styled-components';
 import { getRowFromIndex, getColFromIndex } from '../utils/boardUtils';
+import Flyout from '../components/Flyout';
+import SolutionStats from '../types/SolutionStats';
 
 const ARROW_RIGHT = 'ArrowRight';
 const ARROW_LEFT = 'ArrowLeft';
@@ -12,6 +14,7 @@ const ARROW_LEFT = 'ArrowLeft';
 interface SolutionProps {
   solutionSteps: Board[];
   colourArray: string[];
+  stats: SolutionStats | null;
 }
 
 const grow = keyframes`
@@ -26,14 +29,14 @@ const grow = keyframes`
   }
 `;
 
-const Cell = styled.div<{ bgColour: string, loading: boolean, index: number }>`
-  ${props => props.loading ? '' : 'width: 95%; height: 95%;'};
+const Cell = styled.div<{ bgColour: string; loading: boolean; index: number }>`
+  ${props => (props.loading ? '' : 'width: 95%; height: 95%;')};
   transition: all 0.17s ease-in-out;
   background-color: ${props => props.bgColour};
   transition: all 0.17s;
   animation: ${grow} 0.6s ease-in-out infinite alternate;
   animation-delay: ${props => props.index * 0.05}s;
-  ${props => props.loading ? '' : 'animation-iteration-count: initial'};
+  ${props => (props.loading ? '' : 'animation-iteration-count: initial')};
 `;
 
 const StepList = styled.div`
@@ -49,13 +52,19 @@ const Step = styled.div<{ bgColour: string; selected: boolean }>`
   width: 20px;
   height: 20px;
   background-color: ${props => props.bgColour};
-  ${props => props.selected ? 'border: white 4px solid; margin: 4px;' : 'margin: 8px;'}
+  ${props =>
+    props.selected ? 'border: white 4px solid; margin: 4px;' : 'margin: 8px;'}
+  cursor: pointer;
+`;
+
+const MoreInfoButton = styled.div`
   cursor: pointer;
 `;
 
 const SolutionView: React.SFC<SolutionProps> = props => {
   const [currentStep, setStep] = useState<number>(0);
   const [entered, setEntered] = useState<boolean>(false);
+  const [showInfo, setShowInfo] = useState<boolean>(false);
   const renderedStep = props.solutionSteps[currentStep];
 
   const onKeyDown = (event: React.KeyboardEvent<any>) => {
@@ -116,6 +125,18 @@ const SolutionView: React.SFC<SolutionProps> = props => {
           );
         })}
       </StepList>
+      <MoreInfoButton onClick={() => setShowInfo(true)}>Show details</MoreInfoButton>
+      {props.stats && showInfo && (
+        <Flyout onClose={() => setShowInfo(false)}>
+          <h1>Details</h1>
+          <p>Number of moves: {props.solutionSteps.length - 1}</p>
+          <p>Total iterations: {props.stats!.totalIterations}</p>
+          <p>Couldn't beat the best: {props.stats!.cantBeatCurrentBest}</p>
+          <p>Same board reached in fewer moves: {props.stats!.boardReachedInFewerMoves}</p>
+          <p>Too far behind: {props.stats!.tooFarBehind}</p>
+          <p>New best found: {props.stats!.bestFound}</p>
+        </Flyout>
+      )}
     </EnteringView>
   );
 };

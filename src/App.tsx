@@ -1,13 +1,13 @@
-import React, { Component, useState, useRef } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import { createGlobalStyle } from 'styled-components';
 import InputView from './views/InputView';
 import ScopeView from './views/ScopeView';
 import { getSolutionInfo } from './utils/api';
-import LoadingView from './views/LoadingView';
 import SolutionView from './views/SolutionView';
 import Board from './types/Board';
 import { getSolutionSteps } from './utils/boardUtils';
+import SolutionStats from './types/SolutionStats';
 
 const FILE_UPLOAD = 0;
 const CROP_IMAGE = 1;
@@ -29,29 +29,27 @@ const GlobalStyles = createGlobalStyle`
   }
 `;
 
-const AppWrapper = styled.div<{ stage: number }>(
-  props => `
+const AppWrapper = styled.div<{ stage: number }>`
   text-align: center;
   background-color: #23221a;
   height: 100vh;
   overflow-y: hidden;
-`
-);
+`;
 
-const App: React.SFC<any> = props => {
+const App: React.SFC<any> = () => {
   const [stage, setStage] = useState<number>(FILE_UPLOAD);
   const [file, setFile] = useState<File | null>(null);
   const [colourArray, setColours] = useState<string[]>([]);
   const [steps, setSteps] = useState<Board[]>([]);
-  const [grid, setGrid] = useState<number[][]>([[]]);
+  const [stats, setStats] = useState<SolutionStats | null>(null);
 
 
   const onBoardSelected = async (board: number[][], colours: string[]) => {
     setStage(LOADING_SOLUTION);
-    setGrid(board);
     setColours(colours);
     setSteps([new Board(board)]);
     const results = await getSolutionInfo(board);
+    setStats(results.data.stats);
     setSteps(getSolutionSteps(board, results.data.moves));
     setStage(SHOW_SOLUTION);
   };
@@ -66,7 +64,7 @@ const App: React.SFC<any> = props => {
       <GlobalStyles />
       <InputView onSelectFile={selectFile} />
       {file && <ScopeView file={file} onBoardSelected={onBoardSelected} />}
-      {stage >= LOADING_SOLUTION && <SolutionView colourArray={colourArray} solutionSteps={steps} />}
+      {stage >= LOADING_SOLUTION && <SolutionView colourArray={colourArray} solutionSteps={steps} stats={stats} />}
     </AppWrapper>
   );
 };
