@@ -38,21 +38,19 @@ const AppWrapper = styled.div<{ stage: number }>(
 `
 );
 
-interface AppState {
-  file?: File;
-  stage: number;
-}
-
 const App: React.SFC<any> = props => {
   const [stage, setStage] = useState<number>(FILE_UPLOAD);
   const [file, setFile] = useState<File | null>(null);
   const [colourArray, setColours] = useState<string[]>([]);
   const [steps, setSteps] = useState<Board[]>([]);
+  const [grid, setGrid] = useState<number[][]>([[]]);
 
 
   const onBoardSelected = async (board: number[][], colours: string[]) => {
     setStage(LOADING_SOLUTION);
+    setGrid(board);
     setColours(colours);
+    setSteps([new Board(board)]);
     const results = await getSolutionInfo(board);
     setSteps(getSolutionSteps(board, results.data.moves));
     setStage(SHOW_SOLUTION);
@@ -68,8 +66,7 @@ const App: React.SFC<any> = props => {
       <GlobalStyles />
       <InputView onSelectFile={selectFile} />
       {file && <ScopeView file={file} onBoardSelected={onBoardSelected} />}
-      {stage >= 2 && <LoadingView />}
-      {stage >= 3 && <SolutionView colourArray={colourArray} solutionSteps={steps} />}
+      {stage >= LOADING_SOLUTION && <SolutionView colourArray={colourArray} solutionSteps={steps} />}
     </AppWrapper>
   );
 };
