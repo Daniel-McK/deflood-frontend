@@ -12,6 +12,8 @@ const ARROW_RIGHT = 'ArrowRight';
 const ARROW_LEFT = 'ArrowLeft';
 const ARROW_UP = 'ArrowUp';
 const ARROW_DOWN = 'ArrowDown';
+const I_KEY = 'i';
+const ESCAPE = 'Escape';
 
 interface SolutionProps {
   solutionSteps: Board[];
@@ -70,6 +72,7 @@ const SolutionView: React.SFC<SolutionProps> = props => {
   const renderedStep = props.solutionSteps[currentStep];
 
   const onKeyDown = (event: React.KeyboardEvent<any>) => {
+    console.log(event.key);
     if (event.key === ARROW_LEFT) {
       setStep(Math.max(0, currentStep - 1));
     } else if (event.key === ARROW_RIGHT) {
@@ -78,6 +81,10 @@ const SolutionView: React.SFC<SolutionProps> = props => {
       setStep(0);
     } else if (event.key === ARROW_DOWN) {
       setStep(props.solutionSteps.length - 1);
+    } else if (event.key === I_KEY) {
+      setShowInfo(true);
+    } else if (event.key === ESCAPE) {
+      setShowInfo(false);
     }
   };
 
