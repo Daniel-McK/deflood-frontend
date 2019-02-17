@@ -10,6 +10,8 @@ import SolutionStats from '../types/SolutionStats';
 
 const ARROW_RIGHT = 'ArrowRight';
 const ARROW_LEFT = 'ArrowLeft';
+const ARROW_UP = 'ArrowUp';
+const ARROW_DOWN = 'ArrowDown';
 
 interface SolutionProps {
   solutionSteps: Board[];
@@ -72,6 +74,10 @@ const SolutionView: React.SFC<SolutionProps> = props => {
       setStep(Math.max(0, currentStep - 1));
     } else if (event.key === ARROW_RIGHT) {
       setStep(Math.min(props.solutionSteps.length - 1, currentStep + 1));
+    } else if (event.key === ARROW_UP) {
+      setStep(0);
+    } else if (event.key === ARROW_DOWN) {
+      setStep(props.solutionSteps.length - 1);
     }
   };
 
